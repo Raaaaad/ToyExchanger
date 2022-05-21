@@ -1,4 +1,4 @@
-package com.rp.toyexchanger;
+package com.rp.toyexchanger.ui.ui.MyOffers;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
@@ -31,14 +30,17 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.rp.toyexchanger.AddOfferActivity;
+import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Offer;
-import com.rp.toyexchanger.data.User;
+import com.rp.toyexchanger.data.OfferWithImage;
 import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
-public class AddOfferActivity extends AppCompatActivity {
+public class MyOfferDetailsActivity extends AppCompatActivity {
 
     private int CAMERA_PERMISION_CODE = 1;
     private int CAMERA = 2;
@@ -46,6 +48,8 @@ public class AddOfferActivity extends AppCompatActivity {
     private ImageView imageView;
 
     private EditText titleEditText, descriptionEditText;
+
+    OfferWithImage offerWithImage;
 
     private Uri imagePath;
     private Bitmap cameraImage;
@@ -58,7 +62,7 @@ public class AddOfferActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_offer);
+        setContentView(R.layout.activity_my_offer_details);
         Button cameraButton = findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
@@ -84,6 +88,13 @@ public class AddOfferActivity extends AppCompatActivity {
         imageView = findViewById(R.id.offer_image);
         titleEditText = findViewById(R.id.offer_title);
         descriptionEditText = findViewById(R.id.offer_description);
+
+        Gson gson = new Gson();
+        offerWithImage = gson.fromJson(getIntent().getStringExtra("offer"), OfferWithImage.class);
+
+        imageView.setImageBitmap(offerWithImage.image);
+        titleEditText.setText(offerWithImage.title);
+        descriptionEditText.setText(offerWithImage.description);
 
         storage =  FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -187,10 +198,10 @@ public class AddOfferActivity extends AppCompatActivity {
                                             .child(offerId)
                                             .setValue(offer).addOnCompleteListener(task -> {
                                                 if(task.isSuccessful()) {
-                                                    Toast.makeText(AddOfferActivity.this, "Offer added!", Toast.LENGTH_LONG).show();
-                                                    startActivity(new Intent(AddOfferActivity.this, MainActivity.class));
+                                                    Toast.makeText(MyOfferDetailsActivity.this, "Offer added!", Toast.LENGTH_LONG).show();
+                                                    startActivity(new Intent(MyOfferDetailsActivity.this, MainActivity.class));
                                                 } else {
-                                                    Toast.makeText(AddOfferActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(MyOfferDetailsActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
                                                 }
                                             });
                                     progressDialog.dismiss();
@@ -205,7 +216,7 @@ public class AddOfferActivity extends AppCompatActivity {
                             // Error, Image not uploaded
                             progressDialog.dismiss();
                             Toast
-                                    .makeText(AddOfferActivity.this,
+                                    .makeText(MyOfferDetailsActivity.this,
                                             "Failed " + e.getMessage(),
                                             Toast.LENGTH_SHORT)
                                     .show();

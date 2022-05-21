@@ -1,22 +1,24 @@
 package com.rp.toyexchanger.data;
 
-public class Offer {
+import android.graphics.Bitmap;
+import android.widget.ImageView;
 
-    public String id;
+public class OfferWithImage {
     public String title;
     public String description;
     public String imageId;
     public String userEmail;
+    public Bitmap image;
 
-    public Offer() {
+    public OfferWithImage() {
 
     }
 
-    public Offer(String id, String title, String description, String imageId, String userEmail) {
-        this.id = id;
+    public OfferWithImage(String title, String description, String imageId, String userEmail, Bitmap image) {
         this.title = title;
         this.description = description;
         this.imageId = imageId;
         this.userEmail = userEmail;
+        this.image = image;
     }
 }

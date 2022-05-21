@@ -8,6 +8,8 @@ import android.os.Bundle;
 
 import com.google.android.material.tabs.TabLayout;
 import com.rp.toyexchanger.R;
+import com.rp.toyexchanger.ui.ui.MyOffers.MyOffersFragment;
+import com.rp.toyexchanger.ui.ui.Offers.OffersFragment;
 
 public class MainActivity extends AppCompatActivity {
 
