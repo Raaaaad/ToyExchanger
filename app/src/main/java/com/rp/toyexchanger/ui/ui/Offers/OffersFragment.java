@@ -76,7 +76,7 @@ public class OffersFragment extends Fragment {
                                     @Override
                                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                         Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                        offersWithImage.add(new OfferWithImage(offer.title, offer.description, offer.imageId, offer.userEmail, offerImage));
+                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage));
                                         if (finalSnapshotChildrenSize == offersWithImage.size()) {
                                             OffersAdapter offersAdapter = new OffersAdapter(getActivity(), offersWithImage);
                                             listView.setAdapter(offersAdapter);

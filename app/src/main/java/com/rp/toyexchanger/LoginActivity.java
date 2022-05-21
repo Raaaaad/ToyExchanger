@@ -32,7 +32,9 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_edit_text);
 
         mAuth = FirebaseAuth.getInstance();
-
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(this, MainActivity.class));
+        }
         Button submitButton = findViewById(R.id.login_button);
         submitButton.setOnClickListener(v -> {
             signIn();

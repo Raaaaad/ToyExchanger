@@ -31,7 +31,6 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
-import com.rp.toyexchanger.AddOfferActivity;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
@@ -80,11 +79,6 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
             }
         });
 
-        Button addOfferButton = findViewById(R.id.add_offer_button);
-        addOfferButton.setOnClickListener(v -> {
-            addOffer();
-        });
-
         imageView = findViewById(R.id.offer_image);
         titleEditText = findViewById(R.id.offer_title);
         descriptionEditText = findViewById(R.id.offer_description);
@@ -93,12 +87,18 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         offerWithImage = gson.fromJson(getIntent().getStringExtra("offer"), OfferWithImage.class);
 
         imageView.setImageBitmap(offerWithImage.image);
+        cameraImage = offerWithImage.image;
         titleEditText.setText(offerWithImage.title);
         descriptionEditText.setText(offerWithImage.description);
 
         storage =  FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         mAuth = FirebaseAuth.getInstance();
+
+        Button submitChangesButton = findViewById(R.id.submit_changes_button);
+        submitChangesButton.setOnClickListener(v -> {
+            addOffer();
+        });
     }
 
     @Override
@@ -143,6 +143,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG
             );
             error = true;
+        }
 
             if (title.isEmpty()) {
                 titleEditText.setError("Title is required");
@@ -155,7 +156,6 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                 descriptionEditText.requestFocus();
                 error = true;
             }
-        }
 
         if (error)
             return;
@@ -168,21 +168,17 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
     {
         if (imagePath != null) {
 
-            // Code for showing progressDialog while uploading
             ProgressDialog progressDialog
                     = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
             String uuId = UUID.randomUUID().toString();
-            // Defining the child of storageReference
             StorageReference ref
                     = storageReference
                     .child(
                             "images/"
                                     + uuId);
 
-            // adding listeners on upload
-            // or failure of image
             ref.putFile(imagePath)
                     .addOnSuccessListener(
                             new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -192,13 +188,13 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                                         UploadTask.TaskSnapshot taskSnapshot)
                                 {
                                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                                    String offerId = UUID.randomUUID().toString();
+                                    String offerId = offerWithImage.id;
                                     Offer offer =  new Offer(offerId, title, descrpition, uuId, firebaseUser.getEmail());
                                     FirebaseDatabase.getInstance().getReference("Offers")
                                             .child(offerId)
                                             .setValue(offer).addOnCompleteListener(task -> {
                                                 if(task.isSuccessful()) {
-                                                    Toast.makeText(MyOfferDetailsActivity.this, "Offer added!", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(MyOfferDetailsActivity.this, "Offer modified!", Toast.LENGTH_LONG).show();
                                                     startActivity(new Intent(MyOfferDetailsActivity.this, MainActivity.class));
                                                 } else {
                                                     Toast.makeText(MyOfferDetailsActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
@@ -213,7 +209,6 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e)
                         {
 
-                            // Error, Image not uploaded
                             progressDialog.dismiss();
                             Toast
                                     .makeText(MyOfferDetailsActivity.this,
@@ -225,8 +220,6 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                     .addOnProgressListener(
                             new OnProgressListener<UploadTask.TaskSnapshot>() {
 
-                                // Progress Listener for loading
-                                // percentage on the dialog box
                                 @Override
                                 public void onProgress(
                                         UploadTask.TaskSnapshot taskSnapshot)
@@ -240,6 +233,20 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                                                     + (int)progress + "%");
                                 }
                             });
+        } else {
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+            String offerId = offerWithImage.id;
+            Offer offer =  new Offer(offerId, title, descrpition, offerWithImage.imageId, firebaseUser.getEmail());
+            FirebaseDatabase.getInstance().getReference("Offers")
+                    .child(offerId)
+                    .setValue(offer).addOnCompleteListener(task -> {
+                        if(task.isSuccessful()) {
+                            Toast.makeText(MyOfferDetailsActivity.this, "Offer modified!", Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(MyOfferDetailsActivity.this, MainActivity.class));
+                        } else {
+                            Toast.makeText(MyOfferDetailsActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
     }
 

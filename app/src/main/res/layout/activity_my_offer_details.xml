@@ -47,7 +47,7 @@
       android:inputType="text|textMultiLine" />
 
   <Button
-      android:id="@+id/add_offer_button"
+      android:id="@+id/submit_changes_button"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       app:layout_constraintEnd_toEndOf="parent"
