@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <ImageView
+        android:id="@+id/offer_image"
+        android:layout_height="400dp"
+        android:layout_width="match_parent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/image_placeholder"/>
+
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+        <Button
+            android:id="@+id/camera_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="5dp"
+            android:text="MAKE PHOTO" />
+
+        <Button
+            android:id="@+id/gallery_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:text="GALLERY" />
+    </TableRow>
+
+    <EditText
+        android:id="@+id/offer_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Offer title"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/offer_description"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:gravity="top"
+        android:hint="Offer description"
+        android:inputType="text|textMultiLine" />
+
+    <Button
+        android:id="@+id/add_offer_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Add offer"/>
+</LinearLayout>

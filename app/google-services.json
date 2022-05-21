@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "627400805648",
+    "firebase_url": "https://toyexchanger-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "toyexchanger",
+    "storage_bucket": "toyexchanger.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627400805648:android:3b551c2e89e13f2e77a995",
+        "android_client_info": {
+          "package_name": "com.rp.toyexchanger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627400805648-obgcoetsad80a5raosniv75l8o3jvcla.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rp.toyexchanger",
+            "certificate_hash": "03d58e830fb2c8d831af47d4470a4eca96283bbf"
+          }
+        },
+        {
+          "client_id": "627400805648-ajd8u6b9v71j3l1n6ahb1j4p4ff2m8g7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClrpqglTlMCqpqJLrH-2VVHBn6CGGXR8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627400805648-ajd8u6b9v71j3l1n6ahb1j4p4ff2m8g7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
