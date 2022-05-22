@@ -1,13 +1,16 @@
 package com.rp.toyexchanger.ui.ui.Offers;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.OfferWithImage;
+import com.rp.toyexchanger.ui.ui.MyOffers.MyOfferDetailsActivity;
 
 import java.util.List;
 
@@ -37,6 +40,16 @@ public class OffersAdapter extends ArrayAdapter<OfferWithImage> {
         }
         holder.itemImage.setImageBitmap(offersWithImage.get(position).image);
         holder.offerTitle.setText(offersWithImage.get(position).title);
+        singleItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), OfferDetailsActivity.class);
+                Gson gson = new Gson();
+                String json = gson.toJson(offersWithImage.get(position));
+                intent.putExtra("offer", json);
+                context.startActivity(intent);
+            }
+        });
         return singleItem;
     }
 
