@@ -1,17 +1,16 @@
 package com.rp.toyexchanger;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rp.toyexchanger.data.User;
-import com.rp.toyexchanger.ui.ui.MainActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -31,7 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
         editTextPassword = findViewById(R.id.password_edit_text);
 
         Button registerUserButton = findViewById(R.id.register_user_button);
-        registerUserButton.setOnClickListener( v -> {
+        registerUserButton.setOnClickListener(v -> {
             registerUser();
         });
     }
@@ -67,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
             error = true;
         }
 
-        if(password.length() < 6) {
+        if (password.length() < 6) {
             editTextPassword.setError("Password is too short, please provide at least 6 characters.");
             editTextPassword.requestFocus();
             error = true;
@@ -77,19 +76,19 @@ public class RegisterActivity extends AppCompatActivity {
             return;
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener( result -> {
-                    if(result.isSuccessful()) {
-                        User user =  new User(fullName, age, email);
+                .addOnCompleteListener(result -> {
+                    if (result.isSuccessful()) {
+                        User user = new User(fullName, age, email);
                         FirebaseDatabase.getInstance().getReference("Users")
                                 .child(FirebaseAuth.getInstance().getUid())
                                 .setValue(user).addOnCompleteListener(task -> {
-                                    if(task.isSuccessful()) {
+                                    if (task.isSuccessful()) {
                                         Toast.makeText(RegisterActivity.this, "User has been registered successfully!", Toast.LENGTH_LONG).show();
                                         startActivity(new Intent(this, LoginActivity.class));
                                     } else {
                                         Toast.makeText(RegisterActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
                                     }
-                        });
+                                });
 
                     } else {
                         Toast.makeText(RegisterActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();

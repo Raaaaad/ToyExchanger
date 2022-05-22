@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,7 +30,6 @@ import com.rp.toyexchanger.AddOfferActivity;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
-import com.rp.toyexchanger.ui.ui.Offers.OffersAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +50,7 @@ public class MyOffersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_my_offers, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_offers, container, false);
         listView = view.findViewById(R.id.my_offers_list_view);
         mDatabase = FirebaseDatabase.getInstance().getReference("Offers");
         storage = FirebaseStorage.getInstance();
@@ -69,11 +65,12 @@ public class MyOffersFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                System.out.println("Data changed");
                 if (snapshot.exists()) {
                     int snapshotChildrenSize = 0;
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Offer offer = dataSnapshot.getValue(Offer.class);
-                        if(offer.userEmail.equals(firebaseUser.getEmail()))
+                        if (offer.userEmail.equals(firebaseUser.getEmail()))
                             snapshotChildrenSize++;
                     }
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
@@ -87,7 +84,7 @@ public class MyOffersFragment extends Fragment {
                                     @Override
                                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                         Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage));
+                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage, offer.counterOfferId));
                                         if (finalSnapshotChildrenSize == offersWithImage.size()) {
                                             MyOffersAdapter offersAdapter = new MyOffersAdapter(getActivity(), offersWithImage);
                                             listView.setAdapter(offersAdapter);

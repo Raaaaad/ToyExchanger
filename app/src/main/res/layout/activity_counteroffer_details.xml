@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/offer_image"
+            android:layout_height="400dp"
+            android:layout_width="match_parent"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/image_placeholder"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Offer author"/>
+        <EditText
+            android:id="@+id/offer_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Offer author"
+            android:inputType="none"
+            android:focusable="false"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Offer description"/>
+        <EditText
+            android:id="@+id/offer_description"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:gravity="top"
+            android:hint="Offer description"
+            android:focusable="false"
+            android:inputType="none|textMultiLine" />
+
+        <Button
+            android:id="@+id/accept_offer_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Accept offer"/>
+
+        <Button
+            android:id="@+id/decline_offer_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Decline offer"/>
+    </LinearLayout>
+</ScrollView>

@@ -1,11 +1,5 @@
 package com.rp.toyexchanger.ui.ui.MyOffers;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -16,10 +10,17 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,6 +35,7 @@ import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
+import com.rp.toyexchanger.ui.ui.CounterOffer.CounterofferDetailsActivity;
 import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.ByteArrayOutputStream;
@@ -73,7 +75,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
             } else {
                 ActivityCompat.requestPermissions(
                         this,
-                        new String[] {Manifest.permission.CAMERA},
+                        new String[]{Manifest.permission.CAMERA},
                         CAMERA_PERMISION_CODE
                 );
             }
@@ -91,7 +93,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         titleEditText.setText(offerWithImage.title);
         descriptionEditText.setText(offerWithImage.description);
 
-        storage =  FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         mAuth = FirebaseAuth.getInstance();
 
@@ -99,13 +101,26 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         submitChangesButton.setOnClickListener(v -> {
             addOffer();
         });
+
+        Button showCounterofferButton = findViewById(R.id.show_counteroffer_button);
+        showCounterofferButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CounterofferDetailsActivity.class);
+            intent.putExtra("counterOfferId", offerWithImage.counterOfferId);
+            startActivity(intent);
+        });
+
+        if (offerWithImage.counterOfferId != null && !offerWithImage.counterOfferId.isEmpty()) {
+            showCounterofferButton.setVisibility(View.VISIBLE);
+        }
+
+
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISION_CODE) {
-            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, CAMERA);
             } else {
@@ -122,8 +137,8 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == Activity.RESULT_OK)
-            if(requestCode == CAMERA) {
+        if (resultCode == Activity.RESULT_OK)
+            if (requestCode == CAMERA) {
                 cameraImage = (Bitmap) data.getExtras().get("data");
                 imageView.setImageBitmap(cameraImage);
                 imagePath = getImageUri(getApplicationContext(), cameraImage);
@@ -145,17 +160,17 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
             error = true;
         }
 
-            if (title.isEmpty()) {
-                titleEditText.setError("Title is required");
-                titleEditText.requestFocus();
-                error = true;
-            }
+        if (title.isEmpty()) {
+            titleEditText.setError("Title is required");
+            titleEditText.requestFocus();
+            error = true;
+        }
 
-            if (description.isEmpty()) {
-                descriptionEditText.setError("Password is required");
-                descriptionEditText.requestFocus();
-                error = true;
-            }
+        if (description.isEmpty()) {
+            descriptionEditText.setError("Password is required");
+            descriptionEditText.requestFocus();
+            error = true;
+        }
 
         if (error)
             return;
@@ -164,8 +179,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
 
     }
 
-    private void uploadImage(String title, String descrpition)
-    {
+    private void uploadImage(String title, String descrpition) {
         if (imagePath != null) {
 
             ProgressDialog progressDialog
@@ -185,15 +199,14 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onSuccess(
-                                        UploadTask.TaskSnapshot taskSnapshot)
-                                {
+                                        UploadTask.TaskSnapshot taskSnapshot) {
                                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                     String offerId = offerWithImage.id;
-                                    Offer offer =  new Offer(offerId, title, descrpition, uuId, firebaseUser.getEmail());
+                                    Offer offer = new Offer(offerId, title, descrpition, uuId, firebaseUser.getEmail());
                                     FirebaseDatabase.getInstance().getReference("Offers")
                                             .child(offerId)
                                             .setValue(offer).addOnCompleteListener(task -> {
-                                                if(task.isSuccessful()) {
+                                                if (task.isSuccessful()) {
                                                     Toast.makeText(MyOfferDetailsActivity.this, "Offer modified!", Toast.LENGTH_LONG).show();
                                                     startActivity(new Intent(MyOfferDetailsActivity.this, MainActivity.class));
                                                 } else {
@@ -206,8 +219,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
 
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
-                        public void onFailure(@NonNull Exception e)
-                        {
+                        public void onFailure(@NonNull Exception e) {
 
                             progressDialog.dismiss();
                             Toast
@@ -222,25 +234,24 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onProgress(
-                                        UploadTask.TaskSnapshot taskSnapshot)
-                                {
+                                        UploadTask.TaskSnapshot taskSnapshot) {
                                     double progress
                                             = (100.0
                                             * taskSnapshot.getBytesTransferred()
                                             / taskSnapshot.getTotalByteCount());
                                     progressDialog.setMessage(
                                             "Uploaded "
-                                                    + (int)progress + "%");
+                                                    + (int) progress + "%");
                                 }
                             });
         } else {
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
             String offerId = offerWithImage.id;
-            Offer offer =  new Offer(offerId, title, descrpition, offerWithImage.imageId, firebaseUser.getEmail());
+            Offer offer = new Offer(offerId, title, descrpition, offerWithImage.imageId, firebaseUser.getEmail());
             FirebaseDatabase.getInstance().getReference("Offers")
                     .child(offerId)
                     .setValue(offer).addOnCompleteListener(task -> {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             Toast.makeText(MyOfferDetailsActivity.this, "Offer modified!", Toast.LENGTH_LONG).show();
                             startActivity(new Intent(MyOfferDetailsActivity.this, MainActivity.class));
                         } else {

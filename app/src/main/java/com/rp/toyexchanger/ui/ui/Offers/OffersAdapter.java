@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.OfferWithImage;
-import com.rp.toyexchanger.ui.ui.MyOffers.MyOfferDetailsActivity;
 
 import java.util.List;
 

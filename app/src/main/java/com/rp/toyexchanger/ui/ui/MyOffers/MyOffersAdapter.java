@@ -2,14 +2,12 @@ package com.rp.toyexchanger.ui.ui.MyOffers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.google.gson.Gson;
-import com.rp.toyexchanger.AddOfferActivity;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.OfferWithImage;
 

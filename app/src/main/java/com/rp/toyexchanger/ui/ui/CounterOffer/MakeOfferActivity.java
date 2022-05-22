@@ -1,4 +1,4 @@
-package com.rp.toyexchanger;
+package com.rp.toyexchanger.ui.ui.CounterOffer;
 
 import android.Manifest;
 import android.app.Activity;
@@ -30,20 +30,25 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+import com.rp.toyexchanger.R;
+import com.rp.toyexchanger.data.Counteroffer;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
-public class AddOfferActivity extends AppCompatActivity {
+public class MakeOfferActivity extends AppCompatActivity {
 
     private int CAMERA_PERMISION_CODE = 1;
     private int CAMERA = 2;
 
     private ImageView imageView;
 
-    private EditText titleEditText, descriptionEditText;
+    private EditText descriptionEditText;
+
+    Offer offer;
 
     private Uri imagePath;
     private Bitmap cameraImage;
@@ -52,11 +57,19 @@ public class AddOfferActivity extends AppCompatActivity {
     StorageReference storageReference;
     private FirebaseAuth mAuth;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_offer);
+        setContentView(R.layout.activity_make_offer);
+
+        Gson gson = new Gson();
+        offer = gson.fromJson(getIntent().getStringExtra("offer"), Offer.class);
+
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+        mAuth = FirebaseAuth.getInstance();
+        descriptionEditText = findViewById(R.id.offer_description);
+        imageView = findViewById(R.id.offer_image);
         Button cameraButton = findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
@@ -74,35 +87,10 @@ public class AddOfferActivity extends AppCompatActivity {
             }
         });
 
-        Button addOfferButton = findViewById(R.id.add_offer_button);
-        addOfferButton.setOnClickListener(v -> {
-            addOffer();
+        Button makeOffer = findViewById(R.id.make_offer_button);
+        makeOffer.setOnClickListener(v -> {
+            makeOffer();
         });
-
-        imageView = findViewById(R.id.offer_image);
-        titleEditText = findViewById(R.id.offer_title);
-        descriptionEditText = findViewById(R.id.offer_description);
-
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
-        mAuth = FirebaseAuth.getInstance();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, CAMERA);
-            } else {
-                Toast.makeText(
-                        this,
-                        "No permission granted",
-                        Toast.LENGTH_LONG
-                );
-            }
-        }
     }
 
     @Override
@@ -117,29 +105,14 @@ public class AddOfferActivity extends AppCompatActivity {
             }
     }
 
-    private void addOffer() {
-        String title = titleEditText.getText().toString().trim();
+    private void makeOffer() {
         String description = descriptionEditText.getText().toString().trim();
 
         boolean error = false;
 
-        if (cameraImage == null) {
-            Toast.makeText(
-                    this,
-                    "No image selected.",
-                    Toast.LENGTH_LONG
-            );
-            error = true;
-        }
-
-        if (title.isEmpty()) {
-            titleEditText.setError("Title is required");
-            titleEditText.requestFocus();
-            error = true;
-        }
 
         if (description.isEmpty()) {
-            descriptionEditText.setError("Password is required");
+            descriptionEditText.setError("Description is required");
             descriptionEditText.requestFocus();
             error = true;
         }
@@ -147,46 +120,43 @@ public class AddOfferActivity extends AppCompatActivity {
         if (error)
             return;
 
-        uploadImage(title, description);
+        uploadOffer(description);
 
     }
 
-    private void uploadImage(String title, String descrpition) {
+    private void uploadOffer(String description) {
         if (imagePath != null) {
 
-            // Code for showing progressDialog while uploading
             ProgressDialog progressDialog
                     = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
             String uuId = UUID.randomUUID().toString();
-            // Defining the child of storageReference
             StorageReference ref
                     = storageReference
                     .child(
                             "images/"
                                     + uuId);
 
-            // adding listeners on upload
-            // or failure of image
             ref.putFile(imagePath)
                     .addOnSuccessListener(
                             new OnSuccessListener<UploadTask.TaskSnapshot>() {
-
                                 @Override
                                 public void onSuccess(
                                         UploadTask.TaskSnapshot taskSnapshot) {
                                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                     String offerId = UUID.randomUUID().toString();
-                                    Offer offer = new Offer(offerId, title, descrpition, uuId, firebaseUser.getEmail());
-                                    FirebaseDatabase.getInstance().getReference("Offers")
+                                    Counteroffer counteroffer = new Counteroffer(offerId, description, uuId, firebaseUser.getEmail(), offer.id);
+                                    FirebaseDatabase.getInstance().getReference("Counteroffers")
                                             .child(offerId)
-                                            .setValue(offer).addOnCompleteListener(task -> {
+                                            .setValue(counteroffer).addOnCompleteListener(task -> {
                                                 if (task.isSuccessful()) {
-                                                    Toast.makeText(AddOfferActivity.this, "Offer added!", Toast.LENGTH_LONG).show();
-                                                    startActivity(new Intent(AddOfferActivity.this, MainActivity.class));
+                                                    Toast.makeText(MakeOfferActivity.this, "Counteroffer created!", Toast.LENGTH_LONG).show();
+                                                    offer.counterOfferId = offerId;
+                                                    FirebaseDatabase.getInstance().getReference("Offers").child(offer.id).setValue(offer);
+                                                    startActivity(new Intent(MakeOfferActivity.this, MainActivity.class));
                                                 } else {
-                                                    Toast.makeText(AddOfferActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(MakeOfferActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
                                                 }
                                             });
                                     progressDialog.dismiss();
@@ -197,10 +167,9 @@ public class AddOfferActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
-                            // Error, Image not uploaded
                             progressDialog.dismiss();
                             Toast
-                                    .makeText(AddOfferActivity.this,
+                                    .makeText(MakeOfferActivity.this,
                                             "Failed " + e.getMessage(),
                                             Toast.LENGTH_SHORT)
                                     .show();
@@ -209,8 +178,6 @@ public class AddOfferActivity extends AppCompatActivity {
                     .addOnProgressListener(
                             new OnProgressListener<UploadTask.TaskSnapshot>() {
 
-                                // Progress Listener for loading
-                                // percentage on the dialog box
                                 @Override
                                 public void onProgress(
                                         UploadTask.TaskSnapshot taskSnapshot) {
@@ -223,6 +190,22 @@ public class AddOfferActivity extends AppCompatActivity {
                                                     + (int) progress + "%");
                                 }
                             });
+        } else {
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+            String offerId = UUID.randomUUID().toString();
+            Counteroffer counteroffer = new Counteroffer(offerId, description, "Empty image", firebaseUser.getEmail(), offer.id);
+            FirebaseDatabase.getInstance().getReference("Counteroffers")
+                    .child(offerId)
+                    .setValue(counteroffer).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MakeOfferActivity.this, "Counteroffer created!", Toast.LENGTH_LONG).show();
+                            offer.counterOfferId = offerId;
+                            FirebaseDatabase.getInstance().getReference("Offers").child(offer.id).setValue(offer);
+                            startActivity(new Intent(MakeOfferActivity.this, MainActivity.class));
+                        } else {
+                            Toast.makeText(MakeOfferActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
     }
 
@@ -232,4 +215,6 @@ public class AddOfferActivity extends AppCompatActivity {
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
+
+
 }

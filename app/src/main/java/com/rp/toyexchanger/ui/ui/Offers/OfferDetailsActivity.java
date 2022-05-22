@@ -1,44 +1,21 @@
 package com.rp.toyexchanger.ui.ui.Offers;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
-import com.rp.toyexchanger.ui.ui.MainActivity;
-import com.rp.toyexchanger.ui.ui.MyOffers.MyOfferDetailsActivity;
-
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import java.io.ByteArrayOutputStream;
-import java.util.UUID;
+import com.rp.toyexchanger.ui.ui.CounterOffer.MakeOfferActivity;
 
 public class OfferDetailsActivity extends AppCompatActivity {
 
@@ -70,13 +47,23 @@ public class OfferDetailsActivity extends AppCompatActivity {
         descriptionEditText.setText(offerWithImage.description);
         offerAuthorEditText.setText(offerWithImage.userEmail);
 
-        storage =  FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
         Button makeOfferButton = findViewById(R.id.make_offer_button);
+        if (offerWithImage.counterOfferId != null) {
+            makeOfferButton.setText("Offer already made");
+            makeOfferButton.setEnabled(false);
+        }
+        makeOfferButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, MakeOfferActivity.class);
+            Offer offer = new Offer(offerWithImage.id, offerWithImage.title, offerWithImage.description, offerWithImage.imageId, offerWithImage.userEmail);
+            String json = gson.toJson(offer);
+            intent.putExtra("offer", json);
+            startActivity(intent);
+        });
 
     }
-
 
 
 }

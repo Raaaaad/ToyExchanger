@@ -3,15 +3,14 @@ package com.rp.toyexchanger.ui.ui.Offers;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,7 +47,7 @@ public class OffersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_offers, container, false);
+        View view = inflater.inflate(R.layout.fragment_offers, container, false);
         listView = view.findViewById(R.id.offers_list_view);
         mDatabase = FirebaseDatabase.getInstance().getReference("Offers");
         storage = FirebaseStorage.getInstance();
@@ -76,7 +75,7 @@ public class OffersFragment extends Fragment {
                                     @Override
                                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                         Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage));
+                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage, offer.counterOfferId));
                                         if (finalSnapshotChildrenSize == offersWithImage.size()) {
                                             OffersAdapter offersAdapter = new OffersAdapter(getActivity(), offersWithImage);
                                             listView.setAdapter(offersAdapter);
