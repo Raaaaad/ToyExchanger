@@ -43,9 +43,7 @@ public class MyOffersAdapter extends ArrayAdapter<OfferWithImage> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), MyOfferDetailsActivity.class);
-                Gson gson = new Gson();
-                String json = gson.toJson(offersWithImage.get(position));
-                intent.putExtra("offer", json);
+                intent.putExtra("offer", offersWithImage.get(position).id);
                 context.startActivity(intent);
             }
         });

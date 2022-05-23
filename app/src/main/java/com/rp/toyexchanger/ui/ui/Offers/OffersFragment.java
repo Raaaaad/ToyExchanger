@@ -57,6 +57,7 @@ public class OffersFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                offersWithImage = new ArrayList<>();
                 if (snapshot.exists()) {
                     int snapshotChildrenSize = 0;
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {

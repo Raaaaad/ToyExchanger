@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -26,19 +27,27 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
+import com.rp.toyexchanger.data.Counteroffer;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
 import com.rp.toyexchanger.ui.ui.CounterOffer.CounterofferDetailsActivity;
 import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 public class MyOfferDetailsActivity extends AppCompatActivity {
@@ -50,7 +59,8 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
 
     private EditText titleEditText, descriptionEditText;
 
-    OfferWithImage offerWithImage;
+    Offer offer;
+    String offerId = "";
 
     private Uri imagePath;
     private Bitmap cameraImage;
@@ -58,6 +68,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
     FirebaseStorage storage;
     StorageReference storageReference;
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
 
     @Override
@@ -85,13 +96,8 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         titleEditText = findViewById(R.id.offer_title);
         descriptionEditText = findViewById(R.id.offer_description);
 
-        Gson gson = new Gson();
-        offerWithImage = gson.fromJson(getIntent().getStringExtra("offer"), OfferWithImage.class);
+        offerId = getIntent().getStringExtra("offer");
 
-        imageView.setImageBitmap(offerWithImage.image);
-        cameraImage = offerWithImage.image;
-        titleEditText.setText(offerWithImage.title);
-        descriptionEditText.setText(offerWithImage.description);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -105,14 +111,47 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         Button showCounterofferButton = findViewById(R.id.show_counteroffer_button);
         showCounterofferButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, CounterofferDetailsActivity.class);
-            intent.putExtra("counterOfferId", offerWithImage.counterOfferId);
+            intent.putExtra("counterOfferId", offer.counterOfferId);
             startActivity(intent);
         });
 
-        if (offerWithImage.counterOfferId != null && !offerWithImage.counterOfferId.isEmpty()) {
-            showCounterofferButton.setVisibility(View.VISIBLE);
-        }
+        mDatabase = FirebaseDatabase.getInstance().getReference("Offers").child(offerId);
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    offer = snapshot.getValue(Offer.class);
+                    descriptionEditText.setText(offer.description);
+                    titleEditText.setText(offer.title);
+                        StorageReference ref = storage.getReference().child("images/" + offer.imageId);
+                        try {
+                            final File localFile = File.createTempFile("Images", "jpeg");
+                            ref.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                    Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                                    imageView.setImageBitmap(offerImage);
+                                    if (offer.counterOfferId != null && !offer.counterOfferId.isEmpty()) {
+                                        showCounterofferButton.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(MyOfferDetailsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
     }
 
@@ -201,8 +240,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                                 public void onSuccess(
                                         UploadTask.TaskSnapshot taskSnapshot) {
                                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                                    String offerId = offerWithImage.id;
-                                    Offer offer = new Offer(offerId, title, descrpition, uuId, firebaseUser.getEmail());
+                                    offer = new Offer(offer.id, title, descrpition, uuId, firebaseUser.getEmail());
                                     FirebaseDatabase.getInstance().getReference("Offers")
                                             .child(offerId)
                                             .setValue(offer).addOnCompleteListener(task -> {
@@ -246,8 +284,8 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                             });
         } else {
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            String offerId = offerWithImage.id;
-            Offer offer = new Offer(offerId, title, descrpition, offerWithImage.imageId, firebaseUser.getEmail());
+            String offerId = offer.id;
+            offer = new Offer(offerId, title, descrpition, offer.imageId, firebaseUser.getEmail());
             FirebaseDatabase.getInstance().getReference("Offers")
                     .child(offerId)
                     .setValue(offer).addOnCompleteListener(task -> {

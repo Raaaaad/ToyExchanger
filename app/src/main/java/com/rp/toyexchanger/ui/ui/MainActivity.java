@@ -13,10 +13,19 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.pusher.pushnotifications.PushNotifications;
 import com.rp.toyexchanger.LoginActivity;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.ui.ui.MyOffers.MyOffersFragment;
 import com.rp.toyexchanger.ui.ui.Offers.OffersFragment;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(com.rp.toyexchanger.R.layout.activity_main);
 
         tabLayout = findViewById(R.id.tabLayout);

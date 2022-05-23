@@ -8,6 +8,7 @@ public class Offer {
     public String imageId;
     public String userEmail;
     public String counterOfferId;
+    public String updatedOrCreated;
 
     public Offer() {
 
@@ -19,5 +20,6 @@ public class Offer {
         this.description = description;
         this.imageId = imageId;
         this.userEmail = userEmail;
+        updatedOrCreated = "Yes";
     }
 }

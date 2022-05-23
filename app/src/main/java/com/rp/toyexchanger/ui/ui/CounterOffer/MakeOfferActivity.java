@@ -153,6 +153,7 @@ public class MakeOfferActivity extends AppCompatActivity {
                                                 if (task.isSuccessful()) {
                                                     Toast.makeText(MakeOfferActivity.this, "Counteroffer created!", Toast.LENGTH_LONG).show();
                                                     offer.counterOfferId = offerId;
+                                                    offer.updatedOrCreated = "No";
                                                     FirebaseDatabase.getInstance().getReference("Offers").child(offer.id).setValue(offer);
                                                     startActivity(new Intent(MakeOfferActivity.this, MainActivity.class));
                                                 } else {
@@ -200,6 +201,7 @@ public class MakeOfferActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Toast.makeText(MakeOfferActivity.this, "Counteroffer created!", Toast.LENGTH_LONG).show();
                             offer.counterOfferId = offerId;
+                            offer.updatedOrCreated = "No";
                             FirebaseDatabase.getInstance().getReference("Offers").child(offer.id).setValue(offer);
                             startActivity(new Intent(MakeOfferActivity.this, MainActivity.class));
                         } else {
