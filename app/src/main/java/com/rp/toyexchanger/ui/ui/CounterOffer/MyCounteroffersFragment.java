@@ -77,6 +77,7 @@ public class MyCounteroffersFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    offersWithImage = new ArrayList<>();
                     int snapshotChildrenSize = 0;
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Counteroffer counteroffer = dataSnapshot.getValue(Counteroffer.class);

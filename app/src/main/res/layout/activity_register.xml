@@ -43,7 +43,7 @@
         android:gravity="top"
         android:layout_marginTop="8dp"
         android:hint="Password"
-        android:inputType="text|textMultiLine" />
+        android:inputType="text|textPassword"/>
 
     <Button
         android:id="@+id/register_user_button"

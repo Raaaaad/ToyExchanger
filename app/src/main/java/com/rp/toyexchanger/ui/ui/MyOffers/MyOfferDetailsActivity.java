@@ -133,6 +133,7 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                     Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                                    cameraImage = offerImage;
                                     imageView.setImageBitmap(offerImage);
                                     if (offer.counterOfferId != null && !offer.counterOfferId.isEmpty()) {
                                         showCounterofferButton.setVisibility(View.VISIBLE);

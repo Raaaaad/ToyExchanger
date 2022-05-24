@@ -141,19 +141,25 @@ public class MyOffersFragment extends Fragment {
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if (snapshot.exists()) {
                     Offer offer = snapshot.getValue(Offer.class);
-                    if (offer.updatedOrCreated.equals("No") && offer.userEmail.equals(mAuth.getCurrentUser().getEmail())) {
+                    if (offer.updatedOrCreated.equals("No") && offer.userEmail.equals(mAuth.getCurrentUser().getEmail()) && offer.counterOfferId != null) {
                         Intent resultIntent = new Intent(getActivity(), MyOfferDetailsActivity.class);
                         resultIntent.putExtra("offer", offer.id);
-                        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 1, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                        int pendingFlags;
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+                        } else {
+                            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                        }
+                        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 1, resultIntent, pendingFlags);
 
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), COUNTEROFFER_CHANNEL_ID);
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity(), COUNTEROFFER_CHANNEL_ID);
                         builder.setContentTitle("New counteroffer!");
                         builder.setContentText("Someone wants to make a deal with you!");
                         builder.setSmallIcon(R.drawable.info_icon);
                         builder.setAutoCancel(true);
                         builder.setContentIntent(pendingIntent);
 
-                        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getContext());
+                        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getActivity());
                         managerCompat.notify(1, builder.build());
                     }
                 }
