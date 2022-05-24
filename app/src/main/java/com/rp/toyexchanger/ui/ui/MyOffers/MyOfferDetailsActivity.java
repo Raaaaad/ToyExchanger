@@ -111,7 +111,10 @@ public class MyOfferDetailsActivity extends AppCompatActivity {
         Button showCounterofferButton = findViewById(R.id.show_counteroffer_button);
         showCounterofferButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, CounterofferDetailsActivity.class);
+            Gson gson = new Gson();
+            String json = gson.toJson(offer);
             intent.putExtra("counterOfferId", offer.counterOfferId);
+            intent.putExtra("offer", json);
             startActivity(intent);
         });
 

@@ -1,6 +1,8 @@
 package com.rp.toyexchanger.ui.ui.CounterOffer;
 
-import android.content.Intent;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,9 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -25,75 +24,44 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.gson.Gson;
-import com.rp.toyexchanger.AddOfferActivity;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.Counteroffer;
 import com.rp.toyexchanger.data.Offer;
-import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.File;
 import java.io.IOException;
 
-public class CounterofferDetailsActivity extends AppCompatActivity {
+public class MyCounterofferActivity extends AppCompatActivity {
 
     private ImageView imageView;
 
-    private EditText descriptionEditText, offerTitleEditText, authorEditText;
+    private EditText descriptionEditText, offerTitleEditText, offerAuthorEditText;
 
-    private TextView offerStatusTextView, authorTextView;
-
-    Counteroffer counteroffer;
-    Offer offer;
+    private TextView offerStatusTextView, offerAuthorTextView;
 
 
     FirebaseStorage storage;
     StorageReference storageReference;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase, offerDatabaseReference;
+
+    private Offer offer;
+    private Counteroffer counteroffer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_counteroffer_details);
+        setContentView(R.layout.activity_my_counteroffer);
 
         imageView = findViewById(R.id.offer_image);
         descriptionEditText = findViewById(R.id.offer_description);
         offerTitleEditText = findViewById(R.id.offer_title);
-        authorEditText = findViewById(R.id.offer_author_edit_text);
-        authorTextView = findViewById(R.id.offer_author_text_view);
         offerStatusTextView = findViewById(R.id.offer_status_text_view);
-
-        Gson gson = new Gson();
-        offer = gson.fromJson(getIntent().getStringExtra("offer"), Offer.class);
+        offerAuthorTextView = findViewById(R.id.offer_author_text_view);
+        offerAuthorEditText = findViewById(R.id.offer_author_edit_text);
 
         String counterOfferId = getIntent().getStringExtra("counterOfferId");
-
-        Button declineOfferButton = findViewById(R.id.decline_offer_button);
-        Button acceptOfferButton = findViewById(R.id.accept_offer_button);
-
-        acceptOfferButton.setOnClickListener(v -> {
-            counteroffer.status = "Accepted";
-            FirebaseDatabase.getInstance().getReference("Counteroffers").child(counterOfferId).setValue(counteroffer);
-            authorEditText.setVisibility(View.VISIBLE);
-            offerStatusTextView.setText("Offer has been accepted");
-            authorTextView.setVisibility(View.VISIBLE);
-            offerStatusTextView.setVisibility(View.VISIBLE);
-            acceptOfferButton.setVisibility(View.GONE);
-            declineOfferButton.setVisibility(View.GONE);
-        });
-
-        declineOfferButton.setOnClickListener(v -> {
-            counteroffer.status = "Declined";
-            FirebaseDatabase.getInstance().getReference("Counteroffers").child(counterOfferId).setValue(counteroffer);
-            offer.counterOfferId = null;
-            FirebaseDatabase.getInstance().getReference("Offers").child(offer.id).setValue(offer);
-            offerStatusTextView.setText("Offer has been declined");
-            offerStatusTextView.setVisibility(View.VISIBLE);
-            acceptOfferButton.setVisibility(View.GONE);
-            declineOfferButton.setVisibility(View.GONE);
-            startActivity(new Intent(CounterofferDetailsActivity.this, MainActivity.class));
-        });
+        String offerId = getIntent().getStringExtra("offerId");
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -102,25 +70,21 @@ public class CounterofferDetailsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    counteroffer = snapshot.getValue(Counteroffer.class);
+                    Counteroffer counteroffer = snapshot.getValue(Counteroffer.class);
                     descriptionEditText.setText(counteroffer.description);
                     offerTitleEditText.setText(counteroffer.title);
-                    authorEditText.setText(counteroffer.userEmail);
-                    if (counteroffer.status.equals("Accepted")) {
-                        offerStatusTextView.setText("Offer has been accepted");
+                    offerStatusTextView.setText("Offer status: " + counteroffer.status);
+                    if (counteroffer.status.equals("Waiting")) {
+                        offerStatusTextView.setTextColor(Color.MAGENTA);
+                    } else if (counteroffer.status.equals("Accepted")) {
                         offerStatusTextView.setTextColor(Color.GREEN);
-                        authorEditText.setVisibility(View.VISIBLE);
-                        offerStatusTextView.setVisibility(View.VISIBLE);
-                        authorTextView.setVisibility(View.VISIBLE);
-                        acceptOfferButton.setVisibility(View.GONE);
-                        declineOfferButton.setVisibility(View.GONE);
-                    } else if (counteroffer.status.equals("Declined")) {
-                        offerStatusTextView.setText("Offer has been declined");
-                        offerStatusTextView.setVisibility(View.VISIBLE);
-                        declineOfferButton.setVisibility(View.GONE);
-                        acceptOfferButton.setVisibility(View.GONE);
+                        offerAuthorTextView.setVisibility(View.VISIBLE);
+                        offerAuthorEditText.setVisibility(View.VISIBLE);
+                    } else {
+                        offerStatusTextView.setTextColor(Color.RED);
                     }
-                    if (!counteroffer.imageId.equals("Empty image")) {
+                    offerStatusTextView.setVisibility(View.VISIBLE);
+                    if (counteroffer.imageId != null && !counteroffer.imageId.equals("Empty image")) {
                         StorageReference ref = storage.getReference().child("images/" + counteroffer.imageId);
                         try {
                             final File localFile = File.createTempFile("Images", "jpeg");
@@ -133,13 +97,29 @@ public class CounterofferDetailsActivity extends AppCompatActivity {
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(CounterofferDetailsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MyCounterofferActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        offerDatabaseReference = FirebaseDatabase.getInstance().getReference("Offers").child(offerId);
+        offerDatabaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Offer offer = snapshot.getValue(Offer.class);
+                    offerAuthorEditText.setText(offer.userEmail);
                 }
             }
 

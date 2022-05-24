@@ -36,8 +36,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.rp.toyexchanger.AddOfferActivity;
 import com.rp.toyexchanger.R;
+import com.rp.toyexchanger.data.Counteroffer;
 import com.rp.toyexchanger.data.Offer;
 import com.rp.toyexchanger.data.OfferWithImage;
+import com.rp.toyexchanger.ui.ui.CounterOffer.MyCounterofferActivity;
 import com.rp.toyexchanger.ui.ui.MainActivity;
 
 import java.io.File;
@@ -50,6 +52,7 @@ public class MyOffersFragment extends Fragment {
     ListView listView;
 
     private DatabaseReference mDatabase;
+    private DatabaseReference mDatabaseOfferStatusChangedListener;
     private FirebaseStorage storage;
     private FirebaseAuth mAuth;
 
@@ -70,6 +73,7 @@ public class MyOffersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_my_offers, container, false);
         listView = view.findViewById(R.id.my_offers_list_view);
         mDatabase = FirebaseDatabase.getInstance().getReference("Offers");
+        mDatabaseOfferStatusChangedListener = FirebaseDatabase.getInstance().getReference("Counteroffers");
         storage = FirebaseStorage.getInstance();
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
@@ -100,7 +104,7 @@ public class MyOffersFragment extends Fragment {
                                     @Override
                                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                         Bitmap offerImage = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage, offer.counterOfferId));
+                                        offersWithImage.add(new OfferWithImage(offer.id, offer.title, offer.description, offer.imageId, offer.userEmail, offerImage));
                                         if (finalSnapshotChildrenSize == offersWithImage.size()) {
                                             MyOffersAdapter offersAdapter = new MyOffersAdapter(getActivity(), offersWithImage);
                                             listView.setAdapter(offersAdapter);
@@ -145,7 +149,52 @@ public class MyOffersFragment extends Fragment {
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), COUNTEROFFER_CHANNEL_ID);
                         builder.setContentTitle("New counteroffer!");
                         builder.setContentText("Someone wants to make a deal with you!");
-                        builder.setSmallIcon(R.drawable.info_mark);
+                        builder.setSmallIcon(R.drawable.info_icon);
+                        builder.setAutoCancel(true);
+                        builder.setContentIntent(pendingIntent);
+
+                        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getContext());
+                        managerCompat.notify(1, builder.build());
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        mDatabaseOfferStatusChangedListener.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if (snapshot.exists()) {
+                    Counteroffer counteroffer = snapshot.getValue(Counteroffer.class);
+                    if ((counteroffer.status.equals("Accepted") || counteroffer.status.equals("Declined")) && counteroffer.userEmail.equals(mAuth.getCurrentUser().getEmail())) {
+                        Intent resultIntent = new Intent(getActivity(), MyCounterofferActivity.class);
+                        resultIntent.putExtra("counterOfferId", counteroffer.id);
+                        resultIntent.putExtra("offerId", counteroffer.offerId);
+                        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 1, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), COUNTEROFFER_CHANNEL_ID);
+                        builder.setContentTitle("Counteroffer status changed!");
+                        builder.setContentText("Someone answered to you counteroffer!");
+                        builder.setSmallIcon(R.drawable.info_icon);
                         builder.setAutoCancel(true);
                         builder.setContentIntent(pendingIntent);
 

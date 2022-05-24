@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.pusher.pushnotifications.PushNotifications;
 import com.rp.toyexchanger.LoginActivity;
 import com.rp.toyexchanger.R;
+import com.rp.toyexchanger.ui.ui.CounterOffer.MyCounteroffersFragment;
 import com.rp.toyexchanger.ui.ui.MyOffers.MyOffersFragment;
 import com.rp.toyexchanger.ui.ui.Offers.OffersFragment;
 
@@ -46,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         VPAdapter vpAdapter = new VPAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        vpAdapter.addFragment(new OffersFragment(), "OFFERS");
-        vpAdapter.addFragment(new MyOffersFragment(), "MY OFFERS");
+        vpAdapter.addFragment(new OffersFragment(), "Offers");
+        vpAdapter.addFragment(new MyOffersFragment(), "My offers");
+        vpAdapter.addFragment(new MyCounteroffersFragment(), "My counteroffers");
         viewPager.setAdapter(vpAdapter);
     }
 

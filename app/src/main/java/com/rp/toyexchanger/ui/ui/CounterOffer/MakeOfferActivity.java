@@ -46,7 +46,7 @@ public class MakeOfferActivity extends AppCompatActivity {
 
     private ImageView imageView;
 
-    private EditText descriptionEditText;
+    private EditText titleEditText, descriptionEditText;
 
     Offer offer;
 
@@ -69,6 +69,7 @@ public class MakeOfferActivity extends AppCompatActivity {
         storageReference = storage.getReference();
         mAuth = FirebaseAuth.getInstance();
         descriptionEditText = findViewById(R.id.offer_description);
+        titleEditText = findViewById(R.id.offer_title);
         imageView = findViewById(R.id.offer_image);
         Button cameraButton = findViewById(R.id.camera_button);
         cameraButton.setOnClickListener(v -> {
@@ -107,9 +108,15 @@ public class MakeOfferActivity extends AppCompatActivity {
 
     private void makeOffer() {
         String description = descriptionEditText.getText().toString().trim();
+        String title = titleEditText.getText().toString().trim();
 
         boolean error = false;
 
+        if (title.isEmpty()) {
+            titleEditText.setError("Title is required");
+            titleEditText.requestFocus();
+            error = true;
+        }
 
         if (description.isEmpty()) {
             descriptionEditText.setError("Description is required");
@@ -120,11 +127,11 @@ public class MakeOfferActivity extends AppCompatActivity {
         if (error)
             return;
 
-        uploadOffer(description);
+        uploadOffer(description, title);
 
     }
 
-    private void uploadOffer(String description) {
+    private void uploadOffer(String description, String title) {
         if (imagePath != null) {
 
             ProgressDialog progressDialog
@@ -146,7 +153,8 @@ public class MakeOfferActivity extends AppCompatActivity {
                                         UploadTask.TaskSnapshot taskSnapshot) {
                                     FirebaseUser firebaseUser = mAuth.getCurrentUser();
                                     String offerId = UUID.randomUUID().toString();
-                                    Counteroffer counteroffer = new Counteroffer(offerId, description, uuId, firebaseUser.getEmail(), offer.id);
+                                    Counteroffer counteroffer = new Counteroffer(offerId, title, description, uuId, firebaseUser.getEmail(), offer.id);
+                                    counteroffer.status = "Waiting";
                                     FirebaseDatabase.getInstance().getReference("Counteroffers")
                                             .child(offerId)
                                             .setValue(counteroffer).addOnCompleteListener(task -> {
@@ -194,7 +202,8 @@ public class MakeOfferActivity extends AppCompatActivity {
         } else {
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
             String offerId = UUID.randomUUID().toString();
-            Counteroffer counteroffer = new Counteroffer(offerId, description, "Empty image", firebaseUser.getEmail(), offer.id);
+            Counteroffer counteroffer = new Counteroffer(offerId, title, description, "Empty image", firebaseUser.getEmail(), offer.id);
+            counteroffer.status = "Waiting";
             FirebaseDatabase.getInstance().getReference("Counteroffers")
                     .child(offerId)
                     .setValue(counteroffer).addOnCompleteListener(task -> {

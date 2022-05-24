@@ -15,13 +15,12 @@ public class OfferWithImage {
 
     }
 
-    public OfferWithImage(String id, String title, String description, String imageId, String userEmail, Bitmap image, String counterOfferId) {
+    public OfferWithImage(String id, String title, String description, String imageId, String userEmail, Bitmap image) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imageId = imageId;
         this.userEmail = userEmail;
         this.image = image;
-        this.counterOfferId = counterOfferId;
     }
 }

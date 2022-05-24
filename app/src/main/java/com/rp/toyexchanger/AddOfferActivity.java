@@ -154,21 +154,17 @@ public class AddOfferActivity extends AppCompatActivity {
     private void uploadImage(String title, String descrpition) {
         if (imagePath != null) {
 
-            // Code for showing progressDialog while uploading
             ProgressDialog progressDialog
                     = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
             String uuId = UUID.randomUUID().toString();
-            // Defining the child of storageReference
             StorageReference ref
                     = storageReference
                     .child(
                             "images/"
                                     + uuId);
 
-            // adding listeners on upload
-            // or failure of image
             ref.putFile(imagePath)
                     .addOnSuccessListener(
                             new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -197,7 +193,6 @@ public class AddOfferActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
 
-                            // Error, Image not uploaded
                             progressDialog.dismiss();
                             Toast
                                     .makeText(AddOfferActivity.this,
@@ -209,8 +204,6 @@ public class AddOfferActivity extends AppCompatActivity {
                     .addOnProgressListener(
                             new OnProgressListener<UploadTask.TaskSnapshot>() {
 
-                                // Progress Listener for loading
-                                // percentage on the dialog box
                                 @Override
                                 public void onProgress(
                                         UploadTask.TaskSnapshot taskSnapshot) {
@@ -229,7 +222,9 @@ public class AddOfferActivity extends AppCompatActivity {
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(
+                inContext.getContentResolver(), inImage, "IMG_" + System.currentTimeMillis(), null
+        );
         return Uri.parse(path);
     }
 }

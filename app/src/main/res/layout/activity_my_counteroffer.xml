@@ -56,25 +56,12 @@
             android:visibility="gone"
             android:inputType="none|textMultiLine" />
 
-        <Button
-            android:id="@+id/accept_offer_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Accept offer"/>
-
-        <Button
-            android:id="@+id/decline_offer_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Decline offer"/>
-
         <TextView android:text = "" android:layout_width="wrap_content"
             android:layout_height = "wrap_content"
             android:id = "@+id/offer_status_text_view"
             android:textSize = "35dp"
             android:visibility="gone"
             android:layout_gravity="center"/>
+
     </LinearLayout>
 </ScrollView>

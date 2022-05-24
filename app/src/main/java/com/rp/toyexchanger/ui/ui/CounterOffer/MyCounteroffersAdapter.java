@@ -1,4 +1,4 @@
-package com.rp.toyexchanger.ui.ui.Offers;
+package com.rp.toyexchanger.ui.ui.CounterOffer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,18 +7,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-import com.google.gson.Gson;
 import com.rp.toyexchanger.R;
 import com.rp.toyexchanger.data.OfferWithImage;
+import com.rp.toyexchanger.ui.ui.MyOffers.MyOfferDetailsActivity;
 
 import java.util.List;
 
-public class OffersAdapter extends ArrayAdapter<OfferWithImage> {
+public class MyCounteroffersAdapter extends ArrayAdapter<OfferWithImage> {
     Context context;
 
     List<OfferWithImage> offersWithImage;
 
-    public OffersAdapter(Context context, List<OfferWithImage> offersWithImage) {
+    public MyCounteroffersAdapter(Context context, List<OfferWithImage> offersWithImage) {
         super(context, R.layout.single_offer, R.id.title_text_view, offersWithImage);
         this.context = context;
         this.offersWithImage = offersWithImage;
@@ -28,25 +28,27 @@ public class OffersAdapter extends ArrayAdapter<OfferWithImage> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View singleItem = convertView;
-        OffersViewHolder holder = null;
+        MyCounteroffersViewHolder holder = null;
         if (singleItem == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             singleItem = layoutInflater.inflate(R.layout.single_offer, parent, false);
-            holder = new OffersViewHolder(singleItem);
+            holder = new MyCounteroffersViewHolder(singleItem);
             singleItem.setTag(holder);
         } else {
-            holder = (OffersViewHolder) singleItem.getTag();
+            holder = (MyCounteroffersViewHolder) singleItem.getTag();
         }
         holder.itemImage.setImageBitmap(offersWithImage.get(position).image);
         holder.offerTitle.setText(offersWithImage.get(position).title);
         singleItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), OfferDetailsActivity.class);
-                intent.putExtra("offer", offersWithImage.get(position).id);
+                Intent intent = new Intent(getContext(), MyCounterofferActivity.class);
+                intent.putExtra("counterOfferId", offersWithImage.get(position).id);
+                intent.putExtra("offerId", offersWithImage.get(position).counterOfferId);
                 context.startActivity(intent);
             }
         });
+
         return singleItem;
     }
 
